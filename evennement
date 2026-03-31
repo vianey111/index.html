@@ -1,0 +1,1269 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gestion des événements scolaires au COBISAFANA</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      color: #222;
+    }
+
+    header {
+      background: #1f3c88;
+      color: white;
+      padding: 16px 24px;
+    }
+
+    .header-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo {
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      background: white;
+      padding: 6px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .logo-fallback {
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      background: white;
+      color: #1f3c88;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      text-align: center;
+      padding: 6px;
+      line-height: 1.2;
+    }
+
+    .header-text h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .header-text p {
+      margin: 4px 0 0;
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1100px;
+      margin: 24px auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    h2, h3 {
+      margin-top: 0;
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      font-weight: bold;
+    }
+
+    input, textarea, select, button {
+      width: 100%;
+      margin-top: 6px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    button {
+      background: #1f3c88;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      margin-top: 16px;
+    }
+
+    button:hover {
+      background: #16316f;
+    }
+
+    button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    .event-item {
+      border: 1px solid #dfe5ec;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 14px;
+      background: #fafafa;
+    }
+
+    .event-item h3 {
+      margin-bottom: 8px;
+      color: #1f3c88;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #e8eefc;
+      color: #1f3c88;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      margin-bottom: 10px;
+      margin-right: 8px;
+    }
+
+    .tasks {
+      padding-left: 18px;
+    }
+
+    .notification {
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 12px;
+      background: #fff4d6;
+      border: 1px solid #f0d98a;
+    }
+
+    .small-btn {
+      width: auto;
+      display: inline-block;
+      padding: 8px 12px;
+      margin-right: 8px;
+      margin-top: 10px;
+    }
+
+    .danger {
+      background: #c0392b;
+    }
+
+    .danger:hover {
+      background: #992d22;
+    }
+
+    .secondary {
+      background: #546e7a;
+    }
+
+    .secondary:hover {
+      background: #455a64;
+    }
+
+    .success {
+      background: #2e7d32;
+    }
+
+    .success:hover {
+      background: #256628;
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .toolbar button {
+      width: auto;
+      padding: 10px 14px;
+      margin-top: 0;
+    }
+
+    .toolbar button.active {
+      outline: 3px solid rgba(31, 60, 136, 0.2);
+    }
+
+    .meta {
+      margin: 8px 0;
+    }
+
+    .icon {
+      margin-right: 6px;
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    .section-title {
+      margin-top: 10px;
+      color: #1f3c88;
+    }
+
+    .event-item.upcoming {
+      border-left: 6px solid #2e7d32;
+    }
+
+    .event-item.past {
+      border-left: 6px solid #9e9e9e;
+      opacity: 0.92;
+    }
+
+    .status-badge {
+      display: inline-block;
+      margin-left: 0;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+      vertical-align: middle;
+    }
+
+    .status-upcoming {
+      background: #e7f6ea;
+      color: #2e7d32;
+    }
+
+    .status-past {
+      background: #eeeeee;
+      color: #666;
+    }
+
+    .countdown {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #eef7ee;
+      color: #256628;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .reminder-options {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border: 1px solid #d6e4ff;
+      border-radius: 8px;
+      background: #f8fbff;
+    }
+
+    .reminder-options label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-right: 14px;
+      margin-top: 6px;
+      font-weight: normal;
+    }
+
+    .reminder-options input {
+      width: auto;
+      margin: 0;
+      padding: 0;
+    }
+
+    .form-status {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #eef5ff;
+      color: #1f3c88;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .test-status {
+      margin-top: 12px;
+      font-size: 14px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      background: #eef5ff;
+      color: #1f3c88;
+    }
+
+    .event-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .event-actions button {
+      margin-top: 0;
+    }
+
+    body.dark {
+      background: #121212;
+      color: #f1f1f1;
+    }
+
+    body.dark header {
+      background: #0d47a1;
+    }
+
+    body.dark .card,
+    body.dark .event-item {
+      background: #1e1e1e;
+      color: #f1f1f1;
+      border-color: #333;
+    }
+
+    body.dark h2,
+    body.dark h3,
+    body.dark .section-title,
+    body.dark .event-item h3 {
+      color: #90caf9;
+    }
+
+    body.dark input,
+    body.dark textarea,
+    body.dark select {
+      background: #2b2b2b;
+      color: #f1f1f1;
+      border: 1px solid #555;
+    }
+
+    body.dark .badge {
+      background: #22324d;
+      color: #bbdefb;
+    }
+
+    body.dark .notification {
+      background: #3c320d;
+      border-color: #7a6a1e;
+      color: #fff4bf;
+    }
+
+    body.dark .test-status,
+    body.dark .form-status {
+      background: #1a2b45;
+      color: #bbdefb;
+    }
+
+    body.dark .logo-fallback {
+      background: #263238;
+      color: #bbdefb;
+    }
+
+    body.dark .countdown {
+      background: #1f3322;
+      color: #b9f6ca;
+    }
+
+    body.dark .reminder-options {
+      background: #1a2435;
+      border-color: #35507a;
+    }
+
+    @media (max-width: 800px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .header-content {
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .logo,
+      .logo-fallback {
+        width: 70px;
+        height: 70px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <img src="/mnt/data/40a3e31d-5e25-420f-8e98-f17a3bbc854d.png" alt="Logo école" class="logo" id="logoImage" />
+      <div class="logo-fallback" id="logoFallback">LOGO<br>ÉCOLE</div>
+      <div class="header-text">
+        <h1>Plateforme de gestion des événements scolaires</h1>
+        <p>Les administrateurs publient un événement, les élèves le consultent et peuvent recevoir de vrais rappels tant que la page reste ouverte.</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <section class="card">
+      <h2>Ajouter un événement</h2>
+
+      <label for="titre">Titre de l'événement</label>
+      <input type="text" id="titre" placeholder="Ex : Journée culturelle" />
+
+      <label for="date">Date</label>
+      <input type="date" id="date" />
+
+      <label for="heure">Heure</label>
+      <input type="time" id="heure" />
+
+      <label for="lieu">Lieu</label>
+      <input type="text" id="lieu" placeholder="Ex : Hall, stade" />
+
+      <label for="public">Public concerné</label>
+      <select id="public">
+        <option value="Tous les élèves">Tous les élèves</option>
+        <option value="Classes d'examen">Classes d'examen</option>
+        <option value="Classes intermédiaires">Classes intermédiaires</option>
+        <option value="Premier cycle">Premier cycle</option>
+        <option value="Second cycle">Second cycle</option>
+      </select>
+
+      <label for="description">Description</label>
+      <textarea id="description" placeholder="Décrivez l'événement..."></textarea>
+
+      <label for="programme">Programme / activités prévues</label>
+      <textarea id="programme" placeholder="Une activité par ligne, par exemple :&#10;Accueil&#10;Discours de la sœur&#10;Match de football"></textarea>
+
+      <div class="reminder-options">
+        <strong>Rappel intelligent</strong>
+        <label><input type="checkbox" id="rappel1Jour" /> 1 jour avant</label>
+        <label><input type="checkbox" id="rappel3Jours" /> 3 jours avant</label>
+        <label><input type="checkbox" id="rappel7Jours" /> 7 jours avant</label>
+      </div>
+
+      <button id="ajouterEvenement">Publier l'événement</button>
+      <button id="annulerModification" class="secondary" style="display: none;">Annuler la modification</button>
+      <div id="formStatus" class="form-status">Mode actuel : ajout d'un nouvel événement.</div>
+      <div id="testStatus" class="test-status">Tests internes non exécutés.</div>
+    </section>
+
+    <section class="card">
+      <h2>Notifications élèves</h2>
+      <div id="zoneNotifications">
+        <div class="notification">Aucune notification pour le moment.</div>
+      </div>
+    </section>
+
+    <section class="card full">
+      <h2>Liste des événements</h2>
+
+      <div class="toolbar">
+        <button id="filtreTous" class="active">Tous</button>
+        <button id="filtreAVenir">À venir</button>
+        <button id="filtrePasses">Passés</button>
+        <button id="toggleMode">?? Mode sombre</button>
+      </div>
+
+      <h3 class="section-title">Événements à venir</h3>
+      <div id="listeEvenementsAVenir"></div>
+
+      <h3 class="section-title">Événements passés</h3>
+      <div id="listeEvenementsPasses"></div>
+    </section>
+  </div>
+
+  <script>
+    const boutonAjouter = document.getElementById("ajouterEvenement");
+    const boutonAnnulerModification = document.getElementById("annulerModification");
+    const listeEvenementsAVenir = document.getElementById("listeEvenementsAVenir");
+    const listeEvenementsPasses = document.getElementById("listeEvenementsPasses");
+    const zoneNotifications = document.getElementById("zoneNotifications");
+    const filtreTous = document.getElementById("filtreTous");
+    const filtreAVenir = document.getElementById("filtreAVenir");
+    const filtrePasses = document.getElementById("filtrePasses");
+    const toggleMode = document.getElementById("toggleMode");
+    const testStatus = document.getElementById("testStatus");
+    const formStatus = document.getElementById("formStatus");
+    const logoImage = document.getElementById("logoImage");
+    const logoFallback = document.getElementById("logoFallback");
+    const rappel1Jour = document.getElementById("rappel1Jour");
+    const rappel3Jours = document.getElementById("rappel3Jours");
+    const rappel7Jours = document.getElementById("rappel7Jours");
+
+    let evenements = [];
+    let idEnModification = null;
+    let filtreActuel = "tous";
+    const rappelsProgrammes = new Map();
+    let verificationRappelsInterval = null;
+
+    function genererIdUnique() {
+      return `evt-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+    }
+
+    function mettreAJourStatutFormulaire() {
+      if (idEnModification) {
+        formStatus.textContent = "Mode actuel : modification d'un événement existant.";
+      } else {
+        formStatus.textContent = "Mode actuel : ajout d'un nouvel événement.";
+      }
+    }
+
+    function nettoyerNotificationsInitiales() {
+      const notifications = zoneNotifications.querySelectorAll(".notification");
+      if (notifications.length === 1 && notifications[0].textContent.includes("Aucune notification")) {
+        zoneNotifications.innerHTML = "";
+      }
+    }
+
+    function notificationExisteDeja(message) {
+      const notifications = Array.from(zoneNotifications.querySelectorAll(".notification"));
+      return notifications.some((notification) => notification.textContent === message);
+    }
+
+    function afficherNotifications(message) {
+      nettoyerNotificationsInitiales();
+
+      if (notificationExisteDeja(message)) {
+        return;
+      }
+
+      const notification = document.createElement("div");
+      notification.className = "notification";
+      notification.textContent = message;
+      zoneNotifications.prepend(notification);
+    }
+
+    function sauvegarderEvenements() {
+      localStorage.setItem("evenementsEcole", JSON.stringify(evenements));
+    }
+
+    function sauvegarderMode() {
+      const mode = document.body.classList.contains("dark") ? "oui" : "non";
+      localStorage.setItem("modeSombreEcole", mode);
+    }
+
+    function chargerMode() {
+      const mode = localStorage.getItem("modeSombreEcole");
+      if (mode === "oui") {
+        document.body.classList.add("dark");
+        toggleMode.textContent = "?? Mode clair";
+      } else {
+        toggleMode.textContent = "?? Mode sombre";
+      }
+    }
+
+    function activerBoutonFiltre(boutonActif) {
+      [filtreTous, filtreAVenir, filtrePasses].forEach((bouton) => {
+        bouton.classList.remove("active");
+      });
+      boutonActif.classList.add("active");
+    }
+
+    function construireDateEvenement(evenement) {
+      return new Date(`${evenement.date}T${evenement.heure}`);
+    }
+
+    function formaterDate(dateTexte) {
+      const date = new Date(`${dateTexte}T00:00:00`);
+      return new Intl.DateTimeFormat("fr-FR", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric"
+      }).format(date);
+    }
+
+    function calculerNombreJoursRestants(evenement) {
+      const maintenant = new Date();
+      const dateEvenement = construireDateEvenement(evenement);
+      const difference = dateEvenement.getTime() - maintenant.getTime();
+      return Math.ceil(difference / (1000 * 60 * 60 * 24));
+    }
+
+    function genererTexteCompteARebours(evenement) {
+      if (estEvenementPasse(evenement)) {
+        return "Événement terminé";
+      }
+
+      const maintenant = new Date();
+      const dateEvenement = construireDateEvenement(evenement);
+      const difference = dateEvenement.getTime() - maintenant.getTime();
+      const jours = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const heures = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+
+      if (jours > 0) {
+        return `? Commence dans ${jours} jour(s) et ${heures} heure(s)`;
+      }
+
+      if (heures > 0) {
+        return `? Commence aujourd'hui dans ${heures} heure(s) et ${minutes} minute(s)`;
+      }
+
+      if (minutes > 0) {
+        return `? Commence aujourd'hui dans ${minutes} minute(s)`;
+      }
+
+      return "? Commence très bientôt";
+    }
+
+    function lireOptionsRappelDepuisFormulaire() {
+      const jours = [];
+      if (rappel1Jour.checked) jours.push(1);
+      if (rappel3Jours.checked) jours.push(3);
+      if (rappel7Jours.checked) jours.push(7);
+      return jours.sort((a, b) => a - b);
+    }
+
+    function viderOptionsRappelFormulaire() {
+      rappel1Jour.checked = false;
+      rappel3Jours.checked = false;
+      rappel7Jours.checked = false;
+    }
+
+    function cocherOptionsRappelFormulaire(joursSelectionnes) {
+      const jours = Array.isArray(joursSelectionnes) ? joursSelectionnes : [];
+      rappel1Jour.checked = jours.includes(1);
+      rappel3Jours.checked = jours.includes(3);
+      rappel7Jours.checked = jours.includes(7);
+    }
+
+    function trierEvenementsParDate() {
+      evenements.sort((a, b) => construireDateEvenement(a) - construireDateEvenement(b));
+    }
+
+    function echapperHtml(texte) {
+      return String(texte)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function trouverEvenementParId(id) {
+      return evenements.find((evenement) => evenement.id === id);
+    }
+
+    function creerSignatureEvenement(evenement) {
+      const programmeNormalise = Array.isArray(evenement.programme)
+        ? evenement.programme.map((activite) => activite.trim().toLowerCase()).join("|")
+        : "";
+
+      return [
+        evenement.titre.trim().toLowerCase(),
+        evenement.date,
+        evenement.heure,
+        evenement.lieu.trim().toLowerCase(),
+        evenement.public.trim().toLowerCase(),
+        evenement.description.trim().toLowerCase(),
+        programmeNormalise
+      ].join("##");
+    }
+
+    function evenementExisteDeja(nouvelEvenement) {
+      const signatureNouvelle = creerSignatureEvenement(nouvelEvenement);
+      return evenements.some((evenement) => {
+        if (idEnModification && evenement.id === idEnModification) {
+          return false;
+        }
+        return creerSignatureEvenement(evenement) === signatureNouvelle;
+      });
+    }
+
+    function remplirFormulairePourModification(id) {
+      const evenement = trouverEvenementParId(id);
+      if (!evenement) {
+        afficherNotifications("Impossible de retrouver l'événement à modifier.");
+        return;
+      }
+
+      document.getElementById("titre").value = evenement.titre;
+      document.getElementById("date").value = evenement.date;
+      document.getElementById("heure").value = evenement.heure;
+      document.getElementById("lieu").value = evenement.lieu;
+      document.getElementById("public").value = evenement.public;
+      document.getElementById("description").value = evenement.description;
+      document.getElementById("programme").value = evenement.programme.join("
+");
+      cocherOptionsRappelFormulaire(evenement.rappelJoursAvant);
+      idEnModification = id;
+      boutonAjouter.textContent = "Enregistrer les modifications";
+      boutonAnnulerModification.style.display = "block";
+      mettreAJourStatutFormulaire();
+      afficherNotifications(`Modification de l'événement : '${evenement.titre}'.`);
+    }
+
+    function reinitialiserFormulaire() {
+      document.getElementById("titre").value = "";
+      document.getElementById("date").value = "";
+      document.getElementById("heure").value = "";
+      document.getElementById("lieu").value = "";
+      document.getElementById("description").value = "";
+      document.getElementById("programme").value = "";
+      document.getElementById("public").selectedIndex = 0;
+      viderOptionsRappelFormulaire();
+      idEnModification = null;
+      boutonAjouter.textContent = "Publier l'événement";
+      boutonAnnulerModification.style.display = "none";
+      mettreAJourStatutFormulaire();
+    }
+
+    function normaliserEvenement(evenement) {
+      return {
+        id: evenement.id || genererIdUnique(),
+        titre: evenement.titre || "Sans titre",
+        date: evenement.date || "",
+        heure: evenement.heure || "00:00",
+        lieu: evenement.lieu || "Non précisé",
+        public: evenement.public || "Tous les élèves",
+        description: evenement.description || "",
+        programme: Array.isArray(evenement.programme) ? evenement.programme : [],
+        rappelActive: Boolean(evenement.rappelActive),
+        rappelEnvoye: Boolean(evenement.rappelEnvoye),
+        rappelJoursAvant: Array.isArray(evenement.rappelJoursAvant) ? evenement.rappelJoursAvant : [],
+        rappelsDejaEnvoyes: Array.isArray(evenement.rappelsDejaEnvoyes) ? evenement.rappelsDejaEnvoyes : []
+      };
+    }
+
+    function annulerRappelProgramme(id) {
+      if (rappelsProgrammes.has(id)) {
+        clearTimeout(rappelsProgrammes.get(id));
+        rappelsProgrammes.delete(id);
+      }
+    }
+
+    function declencherRappel(id) {
+      const evenement = trouverEvenementParId(id);
+      if (!evenement) {
+        return;
+      }
+
+      evenement.rappelActive = false;
+      evenement.rappelEnvoye = true;
+      sauvegarderEvenements();
+      afficherEvenements();
+
+      const message = `Rappel automatique : '${evenement.titre}' commence maintenant à ${evenement.heure}.`;
+      afficherNotifications(message);
+
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification("Événement scolaire", {
+          body: `${evenement.titre} commence maintenant à ${evenement.heure}.`,
+          icon: logoImage.currentSrc || logoImage.src || undefined
+        });
+      }
+    }
+
+    function declencherRappelJoursAvant(evenement, joursAvant) {
+      const message = `Rappel intelligent : '${evenement.titre}' aura lieu dans ${joursAvant} jour(s), le ${formaterDate(evenement.date)}.`;
+      afficherNotifications(message);
+
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification("Rappel événement scolaire", {
+          body: `${evenement.titre} aura lieu dans ${joursAvant} jour(s).`,
+          icon: logoImage.currentSrc || logoImage.src || undefined
+        });
+      }
+
+      if (!evenement.rappelsDejaEnvoyes.includes(joursAvant)) {
+        evenement.rappelsDejaEnvoyes.push(joursAvant);
+      }
+      sauvegarderEvenements();
+      afficherEvenements();
+    }
+
+    function demanderPermissionNotificationSiPossible() {
+      if (!("Notification" in window)) {
+        return Promise.resolve("unsupported");
+      }
+
+      if (Notification.permission === "granted") {
+        return Promise.resolve("granted");
+      }
+
+      if (Notification.permission === "denied") {
+        return Promise.resolve("denied");
+      }
+
+      return Notification.requestPermission();
+    }
+
+    function programmerRappel(id) {
+      const evenement = trouverEvenementParId(id);
+      if (!evenement) {
+        afficherNotifications("Impossible de programmer le rappel.");
+        return;
+      }
+
+      if (estEvenementPasse(evenement)) {
+        afficherNotifications("Impossible de programmer un rappel pour un événement déjà passé.");
+        return;
+      }
+
+      if (evenement.rappelActive) {
+        afficherNotifications(`Le rappel de '${evenement.titre}' est déjà programmé.`);
+        return;
+      }
+
+      const delai = construireDateEvenement(evenement).getTime() - Date.now();
+      if (delai <= 0) {
+        afficherNotifications("Le rappel ne peut pas être programmé car l'heure est déjà passée.");
+        return;
+      }
+
+      demanderPermissionNotificationSiPossible().then(() => {
+        annulerRappelProgramme(id);
+        const timerId = setTimeout(function () {
+          rappelsProgrammes.delete(id);
+          declencherRappel(id);
+        }, delai);
+
+        rappelsProgrammes.set(id, timerId);
+        evenement.rappelActive = true;
+        evenement.rappelEnvoye = false;
+        sauvegarderEvenements();
+        afficherEvenements();
+        afficherNotifications(`Rappel programmé pour '${evenement.titre}'. Il se déclenchera à ${evenement.heure} si la page reste ouverte.`);
+      });
+    }
+
+    function verifierRappelsAutomatiquement() {
+      evenements.forEach((evenement) => {
+        if (evenement.rappelActive) {
+          const dateEvenement = construireDateEvenement(evenement).getTime();
+          if (Date.now() >= dateEvenement) {
+            annulerRappelProgramme(evenement.id);
+            declencherRappel(evenement.id);
+            return;
+          }
+        }
+
+        if (!estEvenementPasse(evenement) && Array.isArray(evenement.rappelJoursAvant)) {
+          const joursRestants = calculerNombreJoursRestants(evenement);
+          evenement.rappelJoursAvant.forEach((jour) => {
+            if (joursRestants === jour && !evenement.rappelsDejaEnvoyes.includes(jour)) {
+              declencherRappelJoursAvant(evenement, jour);
+            }
+          });
+        }
+      });
+    }
+
+    function demarrerVerificationContinueDesRappels() {
+      if (verificationRappelsInterval) {
+        clearInterval(verificationRappelsInterval);
+      }
+
+      verificationRappelsInterval = setInterval(function () {
+        verifierRappelsAutomatiquement();
+      }, 1000);
+    }
+
+    function programmerRappelsActifs() {
+      evenements.forEach((evenement) => {
+        annulerRappelProgramme(evenement.id);
+
+        if (!evenement.rappelActive) {
+          return;
+        }
+
+        const delai = construireDateEvenement(evenement).getTime() - Date.now();
+        if (delai <= 0) {
+          evenement.rappelActive = false;
+          evenement.rappelEnvoye = true;
+          return;
+        }
+
+        const timerId = setTimeout(function () {
+          rappelsProgrammes.delete(evenement.id);
+          declencherRappel(evenement.id);
+        }, delai);
+
+        rappelsProgrammes.set(evenement.id, timerId);
+      });
+
+      demarrerVerificationContinueDesRappels();
+      sauvegarderEvenements();
+    }
+
+    function chargerEvenements() {
+      const donnees = localStorage.getItem("evenementsEcole");
+      if (donnees) {
+        try {
+          const parsed = JSON.parse(donnees);
+          evenements = Array.isArray(parsed) ? parsed.map(normaliserEvenement) : [];
+        } catch (erreur) {
+          console.error("Impossible de charger les événements :", erreur);
+          evenements = [];
+        }
+      }
+      programmerRappelsActifs();
+      afficherEvenements();
+    }
+
+    function supprimerEvenement(id) {
+      const evenementSupprime = trouverEvenementParId(id);
+      if (!evenementSupprime) {
+        afficherNotifications("Impossible de supprimer cet événement.");
+        return;
+      }
+
+      annulerRappelProgramme(id);
+      evenements = evenements.filter((evenement) => evenement.id !== id);
+
+      if (idEnModification === id) {
+        reinitialiserFormulaire();
+      }
+
+      sauvegarderEvenements();
+      afficherEvenements();
+      afficherNotifications(`L'événement '${evenementSupprime.titre}' a été supprimé.`);
+    }
+
+    function marquerRappel(id) {
+      programmerRappel(id);
+    }
+
+    function estEvenementPasse(evenement) {
+      return construireDateEvenement(evenement) < new Date();
+    }
+
+    function creerBoutonAction(texte, classes, action, idEvenement) {
+      const bouton = document.createElement("button");
+      bouton.type = "button";
+      bouton.className = `small-btn ${classes}`;
+      bouton.textContent = texte;
+      bouton.addEventListener("click", function () {
+        action(idEvenement);
+      });
+      return bouton;
+    }
+
+    function creerCarteEvenement(evenement) {
+      const carte = document.createElement("div");
+      const evenementPasse = estEvenementPasse(evenement);
+      carte.className = evenementPasse ? "event-item past" : "event-item upcoming";
+
+      const programmeHtml = evenement.programme
+        .map((activite) => `<li>${echapperHtml(activite)}</li>`)
+        .join("");
+
+      const compteARebours = genererTexteCompteARebours(evenement);
+
+      carte.innerHTML = `
+        <span class="badge">${echapperHtml(evenement.public)}</span>
+        ${statutHtml}
+        <h3>${echapperHtml(evenement.titre)}</h3>
+        <p class="meta"><span class="icon">??</span><strong>Date :</strong> ${echapperHtml(formaterDate(evenement.date))}</p>
+        <p class="meta"><span class="icon">?</span><strong>Heure :</strong> ${echapperHtml(evenement.heure)}</p>
+        <p class="meta"><span class="icon">??</span><strong>Lieu :</strong> ${echapperHtml(evenement.lieu)}</p>
+        <p><strong>Description :</strong> ${echapperHtml(evenement.description)}</p>
+        <p><strong>Ce que les élèves feront :</strong></p>
+        <ul class="tasks">${programmeHtml}</ul>
+        <div class="countdown">${echapperHtml(compteARebours)}</div>
+      `;
+
+      const zoneActions = document.createElement("div");
+      zoneActions.className = "event-actions";
+
+      if (!evenementPasse) {
+        zoneActions.appendChild(creerBoutonAction("Modifier", "secondary", remplirFormulairePourModification, evenement.id));
+
+        const texteRappel = evenement.rappelActive ? "Rappel déjà programmé" : "Programmer le rappel à l'heure";
+        const boutonRappel = creerBoutonAction(texteRappel, "success", marquerRappel, evenement.id);
+        boutonRappel.disabled = evenement.rappelActive;
+        zoneActions.appendChild(boutonRappel);
+      }
+
+      zoneActions.appendChild(creerBoutonAction("Supprimer", "danger", supprimerEvenement, evenement.id));
+      carte.appendChild(zoneActions);
+
+      return { carte, evenementPasse };
+    }
+
+    function afficherEvenements() {
+      listeEvenementsAVenir.innerHTML = "";
+      listeEvenementsPasses.innerHTML = "";
+
+      if (evenements.length === 0) {
+        if (filtreActuel === "tous" || filtreActuel === "avenir") {
+          listeEvenementsAVenir.innerHTML = "<p>Aucun événement à venir.</p>";
+        }
+        if (filtreActuel === "tous" || filtreActuel === "passes") {
+          listeEvenementsPasses.innerHTML = "<p>Aucun événement passé.</p>";
+        }
+        return;
+      }
+
+      trierEvenementsParDate();
+
+      let nombreAVenir = 0;
+      let nombrePasses = 0;
+
+      evenements.forEach((evenement) => {
+        const { carte, evenementPasse } = creerCarteEvenement(evenement);
+
+        if (evenementPasse) {
+          if (filtreActuel === "tous" || filtreActuel === "passes") {
+            listeEvenementsPasses.appendChild(carte);
+          }
+          nombrePasses += 1;
+        } else {
+          if (filtreActuel === "tous" || filtreActuel === "avenir") {
+            listeEvenementsAVenir.appendChild(carte);
+          }
+          nombreAVenir += 1;
+        }
+      });
+
+      if ((filtreActuel === "tous" || filtreActuel === "avenir") && nombreAVenir === 0) {
+        listeEvenementsAVenir.innerHTML = "<p>Aucun événement à venir.</p>";
+      }
+
+      if ((filtreActuel === "tous" || filtreActuel === "passes") && nombrePasses === 0) {
+        listeEvenementsPasses.innerHTML = "<p>Aucun événement passé.</p>";
+      }
+
+      if (filtreActuel === "avenir") {
+        listeEvenementsPasses.innerHTML = "";
+      }
+
+      if (filtreActuel === "passes") {
+        listeEvenementsAVenir.innerHTML = "";
+      }
+    }
+
+    boutonAjouter.addEventListener("click", function () {
+      const titre = document.getElementById("titre").value.trim();
+      const date = document.getElementById("date").value;
+      const heure = document.getElementById("heure").value;
+      const lieu = document.getElementById("lieu").value.trim();
+      const publicConcerne = document.getElementById("public").value;
+      const description = document.getElementById("description").value.trim();
+      const programmeTexte = document.getElementById("programme").value.trim();
+
+      if (!titre || !date || !heure || !lieu || !description || !programmeTexte) {
+        alert("Veuillez remplir tous les champs.");
+        return;
+      }
+
+      const dateEvenement = new Date(`${date}T${heure}`);
+      const maintenant = new Date();
+
+      if (dateEvenement.getTime() < maintenant.getTime()) {
+        alert("Impossible de créer ou modifier un événement dans le passé.");
+        return;
+      }
+
+      const programme = programmeTexte
+        .split("\n")
+        .map((activite) => activite.trim())
+        .filter((activite) => activite !== "");
+
+      const evenementExistantEnModification = idEnModification ? trouverEvenementParId(idEnModification) : null;
+      const rappelJoursAvant = lireOptionsRappelDepuisFormulaire();
+
+      const nouvelEvenement = {
+        id: idEnModification || genererIdUnique(),
+        titre,
+        date,
+        heure,
+        lieu,
+        public: publicConcerne,
+        description,
+        programme,
+        rappelActive: evenementExistantEnModification ? evenementExistantEnModification.rappelActive : false,
+        rappelEnvoye: evenementExistantEnModification ? evenementExistantEnModification.rappelEnvoye : false,
+        rappelJoursAvant: rappelJoursAvant,
+        rappelsDejaEnvoyes: evenementExistantEnModification ? evenementExistantEnModification.rappelsDejaEnvoyes.filter((jour) => rappelJoursAvant.includes(jour)) : []
+      };
+
+      if (evenementExisteDeja(nouvelEvenement)) {
+        afficherNotifications("Cet événement existe déjà avec les mêmes informations.");
+        return;
+      }
+
+      if (idEnModification) {
+        annulerRappelProgramme(idEnModification);
+        evenements = evenements.map((evenement) =>
+          evenement.id === idEnModification ? nouvelEvenement : evenement
+        );
+
+        if (nouvelEvenement.rappelActive && !estEvenementPasse(nouvelEvenement)) {
+          programmerRappelsActifs();
+        }
+
+        afficherNotifications(`Événement modifié : '${titre}'.`);
+      } else {
+        evenements.push(nouvelEvenement);
+        afficherNotifications(`Nouvel événement publié : '${titre}' pour ${publicConcerne}.`);
+      }
+
+      sauvegarderEvenements();
+      afficherEvenements();
+      reinitialiserFormulaire();
+    });
+
+    boutonAnnulerModification.addEventListener("click", function () {
+      reinitialiserFormulaire();
+    });
+
+    filtreTous.addEventListener("click", function () {
+      filtreActuel = "tous";
+      activerBoutonFiltre(filtreTous);
+      afficherEvenements();
+    });
+
+    filtreAVenir.addEventListener("click", function () {
+      filtreActuel = "avenir";
+      activerBoutonFiltre(filtreAVenir);
+      afficherEvenements();
+    });
+
+    filtrePasses.addEventListener("click", function () {
+      filtreActuel = "passes";
+      activerBoutonFiltre(filtrePasses);
+      afficherEvenements();
+    });
+
+    toggleMode.addEventListener("click", function () {
+      document.body.classList.toggle("dark");
+      toggleMode.textContent = document.body.classList.contains("dark") ? "?? Mode clair" : "?? Mode sombre";
+      sauvegarderMode();
+    });
+
+    logoImage.addEventListener("error", function () {
+      logoImage.style.display = "none";
+      logoFallback.style.display = "flex";
+    });
+
+    function runSelfTests() {
+      const resultats = [];
+
+      const futur = normaliserEvenement({
+        id: "1",
+        date: "2099-12-31",
+        heure: "23:59",
+        programme: []
+      });
+
+      const passe = normaliserEvenement({
+        id: "2",
+        date: "2000-01-01",
+        heure: "00:00",
+        programme: []
+      });
+
+      const id1 = genererIdUnique();
+      const id2 = genererIdUnique();
+
+      resultats.push({
+        nom: "Un événement futur ne doit pas être classé comme passé",
+        ok: estEvenementPasse(futur) === false
+      });
+
+      resultats.push({
+        nom: "Un événement ancien doit être classé comme passé",
+        ok: estEvenementPasse(passe) === true
+      });
+
+      resultats.push({
+        nom: "L'échappement HTML doit protéger les chevrons",
+        ok: echapperHtml("<script>") === "&lt;script&gt;"
+      });
+
+      resultats.push({
+        nom: "La génération d'identifiant doit produire deux valeurs différentes",
+        ok: id1 !== id2
+      });
+
+      resultats.push({
+        nom: "La normalisation doit ajouter un identifiant si absent",
+        ok: typeof normaliserEvenement({ programme: [] }).id === "string"
+      });
+
+      resultats.push({
+        nom: "Le format de date doit produire du texte lisible",
+        ok: typeof formaterDate("2026-03-27") === "string" && formaterDate("2026-03-27").length > 0
+      });
+
+      resultats.push({
+        nom: "Le compte à rebours doit retourner un texte",
+        ok: typeof genererTexteCompteARebours(futur) === "string"
+      });
+
+      nettoyerNotificationsInitiales();
+      zoneNotifications.innerHTML = "";
+      afficherNotifications("Test unique");
+      afficherNotifications("Test unique");
+      resultats.push({
+        nom: "Une notification identique ne doit pas se répéter",
+        ok: zoneNotifications.querySelectorAll(".notification").length === 1
+      });
+
+      const evenementA = {
+        id: "evt-a",
+        titre: "Journée culturelle",
+        date: "2099-12-31",
+        heure: "10:00",
+        lieu: "Salle polyvalente",
+        public: "Tous les élèves",
+        description: "Une belle journée",
+        programme: ["Accueil", "Discours"]
+      };
+
+      const evenementB = {
+        id: "evt-b",
+        titre: "Journée culturelle",
+        date: "2099-12-31",
+        heure: "10:00",
+        lieu: "Salle polyvalente",
+        public: "Tous les élèves",
+        description: "Une belle journée",
+        programme: ["Accueil", "Discours"]
+      };
+
+      resultats.push({
+        nom: "Deux événements identiques doivent être détectés comme doublons",
+        ok: creerSignatureEvenement(evenementA) === creerSignatureEvenement(evenementB)
+      });
+
+      resultats.push({
+        nom: "Les options de rappel intelligent doivent être des tableaux",
+        ok: Array.isArray(normaliserEvenement({ programme: [] }).rappelJoursAvant)
+      });
+
+      const echecs = resultats.filter((test) => !test.ok);
+      resultats.forEach((test) => {
+        console.assert(test.ok, test.nom);
+      });
+
+      if (echecs.length === 0) {
+        testStatus.textContent = "Tests internes : tout est correct.";
+      } else {
+        testStatus.textContent = `Tests internes : ${echecs.length} échec(s). Ouvre la console pour voir les détails.`;
+      }
+    }
+
+    mettreAJourStatutFormulaire();
+
+    const champDate = document.getElementById("date");
+    champDate.min = new Date().toISOString().split("T")[0];
+
+    chargerMode();
+    chargerEvenements();
+    demarrerVerificationContinueDesRappels();
+    runSelfTests();
+  </script>
+</body>
+</html>
